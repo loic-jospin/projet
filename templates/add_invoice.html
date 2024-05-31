@@ -1,0 +1,145 @@
+{% extends "Base.html" %}
+
+{% block content %}
+<br><br><br><br>
+<h1 class="text-capitalize text-center mx-10 bg-dark text white"> Register a new invoice</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="customer">Customer</label>
+            <select name="customer" id="customer" class="form-control">
+                <option >Choose the customer...</option>
+                {% for customer in customers %}
+                <option value="{{customer.id}}">{{forloop.counter}}-{{customer.name}}</option>
+                {% endfor %}
+            </select>
+
+        </div>
+
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="invoice">Invoice Type</label>
+            <select name="invoice_type" id="invoice" class="form-control">
+                <option >Choose the invoice type...</option>
+                
+                <option value="R">RECEIPT</option>
+                <option value="P">PROFORMA INVOICE</option>
+                <option value="I">INVOICE</option>
+            </select>
+
+        </div>
+
+    </div>
+
+    <div id="Wrapper">
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="article-1">#1 Item name</label>
+                <input required type="text" name="article" class="form-control" id="article-1">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="qty-1">Quantity</label>
+                <input required type="number" name="qty" min="1" step="0.1" class="form-control" id="qty-1">
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="unit-1">Unit Price</label>
+                <input required type="number" name="unit" min="1" step="0.1" onchange="handleChangeSingleArticle(this.id)" class="form-control" id="unit-1">
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="total-a-1">Total</label>
+                <input required type="number" name="total-a" min="1" step="0.1" class="form-control" id="total-a-1">
+            </div>
+            
+         </div>
+        
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="total">Total</label>
+            <input value="0" type="number" step="0.1" name="total" readonly class="form-control" id="total">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-12">
+            <label for="comment">Comments</label>
+            <textarea class="form-control" name="comment" id="comment" cols="30" rows="1"></textarea>
+
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Save</button>
+    <br><br><br>
+</form>
+<br><br>
+<div class="row">
+    <button id="btn-add" class="btn btn-outline-danger w-50 col-md-6">Add new item line</button>
+    <button id="btn-remove" class="btn btn-outline-warning w-50 col-md-6">Remove last item line</button>
+
+</div>
+<br><br><br>
+
+<script type="text/javascript">
+    //cliquer pour ajouter un nouvelle ligne
+
+    $(document).on('click','#btn-add', function(){
+        var number = $('#Wrapper').children().length + 1;
+        let formAdd = `
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <label for="article-${number}">#${number} Item name</label>
+                <input required type="text" name="article" class="form-control" id="article-${number}">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="qty-${number}">Quantity</label>
+                <input required type="number" name="qty" min="1" step="0.1"  class="form-control" id="qty-${number}">
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="unit-${number}">Unit Price</label>
+                <input required type="number" name="unit" min="1" step="0.1" onchange="handleChangeSingleArticle(this.id)" class="form-control" id="unit-${number}">
+            </div>
+
+            <div class="form-group col-md-3">
+                <label for="total-a-${number}">Total</label>
+                <input required type="number" name="total-a" min="1" step="0.1" class="form-control" id="total-a-${number}">
+            </div>
+            
+         </div>`;
+
+         $("#Wrapper:last").append(formAdd);
+
+    })
+
+    //pour retirer le dernier element
+    $(document).on('click', '#btn-remove', function(){
+        $("#Wrapper").children().last().remove();
+    })
+
+    //calcul du total
+
+    function handleChangeSingleArticle(id){
+        console.log(id.toString().split('-'))
+
+        let articleId= id.split('-')[1];
+        let idQty = `#qty-${articleId}`;
+        let unitId = `#unit-${articleId}`;
+        let totalIdline = `#total-a-${articleId}`;
+        let totalLine = parseFloat($(idQty).val()) * parseFloat($(unitId).val());
+        $(totalIdline).val(totalLine);
+        $('#total').val(parseFloat($('#total').val()) + totalLine);
+
+    }
+    //code pas fini
+</script>
+
+{% endblock content %}
+
